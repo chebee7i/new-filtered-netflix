@@ -12,7 +12,39 @@
 // @run-at        document-end
 // ==/UserScript==
 
+// @chebee7i
+//   - Add a "Watched" checkbox.
+//   - Previously rated movies that are not yet tracked are declared as
+//     watched once you hover over them.
+//   - The status of any tracked movie can be overridden using the checkbox.
+//   - Whenever a movie rating is provided, the movie is declared as watched
+//     if it was not being tracked already. Otherwise, the status of the movie
+//     remains unchanged.
+
 $(document).ready(function() {
+
+  var titles = JSON.parse(localStorage.getItem("filteredTitlesYo"));
+
+  function addCheckbox(container) {
+    var content = container.find('.bobMovieContent');
+    var cb = $('<input />', { type: 'checkbox', id: 'watchedYo', value: 'watched' }).appendTo(content);
+    $('<label />', { 'for': 'watchedYo', text: 'Watched' }).appendTo(content);
+
+    var bobTitle = container.find('.bobMovieHeader .title').html();
+    if (bobTitle != undefined) bobTitle = bobTitle.trim();
+    cb.click(function () {
+      if ( $(this).is(':checked') ) {
+        titles[bobTitle] = true;
+        hideThatTitleYo(bobTitle);
+      }
+      else {
+        titles[bobTitle] = false;
+        unhideThatTitleYo(bobTitle);
+      }
+      localStorage.setItem("filteredTitlesYo", JSON.stringify(titles));
+    });
+
+  }
 
   function hideThatTitleYo(title) {
     var selector = 'img[alt="' + title + '"]';
@@ -26,13 +58,27 @@ $(document).ready(function() {
     });
   }
 
-  var titles = JSON.parse(localStorage.getItem("filteredTitlesYo"));
+  function unhideThatTitleYo(title) {
+    var selector = 'img[alt="' + title + '"]';
+    $(selector).css({
+      '-webkit-filter': 'grayscale(0%)',
+      '-moz-filter': 'grayscale(0%)',
+      '-o-filter': 'grayscale(0%)',
+      '-ms-filter': 'grayscale(0%)',
+      'filter': 'grayscale(0%)',
+      'opacity': '1'
+    });
+  }
+
   if (titles === null) {
     titles = {};
   } else {
     //loop and hide
     for (var key in titles) {
-      hideThatTitleYo(key);
+      if (titles[key]) {
+        // hide only if marked as watched
+        hideThatTitleYo(key);
+      }
     }
   }
   var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
@@ -42,10 +88,31 @@ $(document).ready(function() {
     var bobContent = $('.bobContent');
     var bobTitle = bobContent.find('.bobMovieHeader .title').html();
     if (bobTitle != undefined) bobTitle = bobTitle.trim();
-    //check if movie watched
-    if (bobContent.find('.sbmfrt').length != 0) {
-      //store locally that it was watched and shade image
+
+    var stars = bobContent.find('.strbrContainer');
+    stars.on("click", function () {
+      if (!(bobTitle in titles)) {
+        titles[bobTitle] = true;
+        bobContent.find('#watchedYo').prop('checked', true);
+        localStorage.setItem("filteredTitlesYo", JSON.stringify(titles));
+        hideThatTitleYo(bobTitle);
+      }
+    });
+
+    // add checkbox to manually mark as watched
+    addCheckbox(bobContent);
+
+    if (titles[bobTitle] === true) {
+      bobContent.find('#watchedYo').prop('checked', true);
+    }
+    else if (titles[bobTitle] === false) {
+      // if explicitly declared as unwatched, then leave it unchecked
+      bobContent.find('#watchedYo').prop('checked', false);
+    }
+    else if (bobContent.find('.sbmfrt').length != 0) {
+      // otherwise, if movie has rating, store locally that it was watched and shade image
       titles[bobTitle] = true;
+      bobContent.find('#watchedYo').prop('checked', true);
       localStorage.setItem("filteredTitlesYo", JSON.stringify(titles));
       hideThatTitleYo(bobTitle);
     }
