@@ -10,3 +10,11 @@ If you delete the browser cache, then the list tracked movies will be cleared, a
 This script replaces an older Netflix user script, and it has only been tested with Tampermonkey (e.g. for Chrome).
 
 ![Demonstration](NetflixWatched.png)
+
+Chrome Installation
+-------------------
+1. Open Chrome settings and click on "Extensions".
+2. At the bottom, click "Get More Extensions".
+3. Search for "Tampermonkey" and once found, click the "+ Free" blue box to install it.
+4. Click the following link to install the Netflix script:
+    https://github.com/chebee7i/new-filtered-netflix/raw/master/new-filtered-netflix.user.js
