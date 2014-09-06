@@ -7,6 +7,6 @@ Tracked movies are stored locally on your computer using ``localStorage``. Initi
 
 If you delete the browser cache, then the list tracked movies will be cleared, and you will need to redeclare which movies are "watched". Using multiple Netflix profiles is not yet supported---the tracked list of movies will affect whichever profile is in use.
 
-This script replaces an older Netflix user script, and it has only been tested with TamperMonkey (e.g. for Chrome).
+This script replaces an older Netflix user script, and it has only been tested with Tampermonkey (e.g. for Chrome).
 
 ![Demonstration](NetflixWatched.png)
